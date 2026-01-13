@@ -10,6 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import model.dto.User;
 import service.UserService;
 import service.impl.UserServiceImpl;
+import utils.PasswordUtil;
 
 public class DashboardController {
 
@@ -53,6 +54,9 @@ public class DashboardController {
             String lastName = CreateLastNameTf.getText();
             String email = CreateEmailTf.getText();
             String password = CreatePasswordTf.getText();
+            String reEnteredPassword = CreateReEnterPasswordTf.getText();
+
+            if(!password.equals(reEnteredPassword)) throw new RuntimeException("Passwords are not matching");
 
             User user = new User(firstName,lastName,email,password);
 
@@ -89,9 +93,7 @@ public class DashboardController {
             String email = loginEmailTf.getText();
             String password = loginPsTf.getText();
 
-            User user = userService.getUser(email);
-
-            if(user.getEmail().equals(email) && user.getPassword().equals(password)){
+            if(userService.getUser(email,password)){
                 showTargetScreen(dashboardPane);
             }else{
                 throw new RuntimeException("Invalid credentials");

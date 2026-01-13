@@ -4,6 +4,9 @@ import model.dto.User;
 import repository.UserRepository;
 import repository.impl.UserRepositoryImpl;
 import service.UserService;
+import utils.EmailValidator;
+import utils.PasswordUtil;
+import utils.PasswordValidator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,19 +16,28 @@ public class UserServiceImpl implements UserService {
     final UserRepository userRepository = new UserRepositoryImpl();
 
     @Override
-    public boolean createUser(User user) throws SQLException {
-        return userRepository.createUser(user) > 0;
+    public boolean createUser(User user) throws Exception {
+
+        if(!EmailValidator.isValidEmail(user.getEmail())){
+            throw new RuntimeException("Invalid Email");
+        }
+
+        PasswordValidator.validate(user.getPassword());
+
+        String hashedPassword = PasswordUtil.hashPassword(user.getPassword());
+        User securedUser = new User(user.getFirstName(),user.getLastName(),user.getEmail(),hashedPassword);
+        return userRepository.createUser(securedUser) > 0;
     }
 
     @Override
-    public User getUser(String email) throws SQLException {
+    public boolean getUser(String email, String password) throws Exception {
         ResultSet resultSet = userRepository.getUser(email);
         if(resultSet.next()){
-            return new User(resultSet.getString("first_name"),
-                    resultSet.getString("second_name"),
-                    resultSet.getString("email"),
-                    resultSet.getString("user_password"));
+            if(email.equals(resultSet.getString("email"))
+                    && PasswordUtil.verifyPassword(password,resultSet.getString("user_password"))){
+                return true;
+            }
         }
-        return null;
+        return false;
     }
 }
