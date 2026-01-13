@@ -22,4 +22,14 @@ public class UserRepositoryImpl implements UserRepository {
         return preparedStatement.executeUpdate();
 
     }
+
+    @Override
+    public ResultSet getUser(String email) throws SQLException {
+        Connection connection = DbConnector.getInstance().getConnection();
+        String sql = "Select * from users where email = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1,email);
+        return preparedStatement.executeQuery();
+
+    }
 }

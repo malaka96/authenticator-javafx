@@ -85,7 +85,24 @@ public class DashboardController {
 
     @FXML
     void loginBtnAction(ActionEvent event) {
-        showTargetScreen(dashboardPane);
+        try {
+            String email = loginEmailTf.getText();
+            String password = loginPsTf.getText();
+
+            User user = userService.getUser(email);
+
+            if(user.getEmail().equals(email) && user.getPassword().equals(password)){
+                showTargetScreen(dashboardPane);
+            }else{
+                throw new RuntimeException("Invalid credentials");
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Error creating account");
+            alert.setHeaderText(null);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     private void showTargetScreen(AnchorPane targetAnchorPane){
